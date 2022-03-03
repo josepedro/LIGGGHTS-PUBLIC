@@ -1,40 +1,27 @@
 /* ----------------------------------------------------------------------
-    This is the
+   LIGGGHTS - LAMMPS Improved for General Granular and Granular Heat
+   Transfer Simulations
 
-    ██╗     ██╗ ██████╗  ██████╗  ██████╗ ██╗  ██╗████████╗███████╗
-    ██║     ██║██╔════╝ ██╔════╝ ██╔════╝ ██║  ██║╚══██╔══╝██╔════╝
-    ██║     ██║██║  ███╗██║  ███╗██║  ███╗███████║   ██║   ███████╗
-    ██║     ██║██║   ██║██║   ██║██║   ██║██╔══██║   ██║   ╚════██║
-    ███████╗██║╚██████╔╝╚██████╔╝╚██████╔╝██║  ██║   ██║   ███████║
-    ╚══════╝╚═╝ ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝®
+   LIGGGHTS is part of the CFDEMproject
+   www.liggghts.com | www.cfdem.com
 
-    DEM simulation engine, released by
-    DCS Computing Gmbh, Linz, Austria
-    http://www.dcs-computing.com, office@dcs-computing.com
+   Christoph Kloss, christoph.kloss@cfdem.com
+   Copyright 2009-2012 JKU Linz
+   Copyright 2012-     DCS Computing GmbH, Linz
 
-    LIGGGHTS® is part of CFDEM®project:
-    http://www.liggghts.com | http://www.cfdem.com
+   LIGGGHTS is based on LAMMPS
+   LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
+   http://lammps.sandia.gov, Sandia National Laboratories
+   Steve Plimpton, sjplimp@sandia.gov
 
-    Core developer and main author:
-    Christoph Kloss, christoph.kloss@dcs-computing.com
+   This software is distributed under the GNU General Public License.
 
-    LIGGGHTS® is open-source, distributed under the terms of the GNU Public
-    License, version 2 or later. It is distributed in the hope that it will
-    be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
-    received a copy of the GNU General Public License along with LIGGGHTS®.
-    If not, see http://www.gnu.org/licenses . See also top-level README
-    and LICENSE files.
+   See the README file in the top-level directory.
+------------------------------------------------------------------------- */
 
-    LIGGGHTS® and CFDEM® are registered trade marks of DCS Computing GmbH,
-    the producer of the LIGGGHTS® software and the CFDEM®coupling software
-    See http://www.cfdem.com/terms-trademark-policy for details.
-
--------------------------------------------------------------------------
-    Contributing author and copyright for this file:
-    Philippe Seil (JKU Linz)
-
-    Copyright 2014-     JKU Linz
+/* ----------------------------------------------------------------------
+   Contributing authors:
+   Philippe Seil (JKU Linz)
 ------------------------------------------------------------------------- */
 
 #ifdef FIX_CLASS
@@ -53,7 +40,7 @@ namespace LAMMPS_NS {
   public:
     FixLbCouplingOnetoone(class LAMMPS * lmp, int narg, char ** arg);
     ~FixLbCouplingOnetoone();
-
+    
     virtual int setmask();
 
     virtual void post_create();
@@ -61,6 +48,7 @@ namespace LAMMPS_NS {
     virtual void init();
 
     virtual void post_force(int);
+    virtual void post_run();
 
     double **get_force_ptr();
     double **get_torque_ptr();
@@ -68,10 +56,14 @@ namespace LAMMPS_NS {
   private:
     class FixPropertyAtom* fix_dragforce_;
     class FixPropertyAtom* fix_hdtorque_; // hdtorque = hydrodynamic torque
+    int use_torque_;
   }; /* class FixLbCouplingOnetoone */
 
 }; /* LAMMPS_NS */
 
 #endif /* FIX_LB_COUPLING_ONETOONE */
 #endif /* FIX_CLASS */
+
+
+
 

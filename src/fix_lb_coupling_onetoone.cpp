@@ -1,40 +1,27 @@
 /* ----------------------------------------------------------------------
-    This is the
+   LIGGGHTS - LAMMPS Improved for General Granular and Granular Heat
+   Transfer Simulations
 
-    ██╗     ██╗ ██████╗  ██████╗  ██████╗ ██╗  ██╗████████╗███████╗
-    ██║     ██║██╔════╝ ██╔════╝ ██╔════╝ ██║  ██║╚══██╔══╝██╔════╝
-    ██║     ██║██║  ███╗██║  ███╗██║  ███╗███████║   ██║   ███████╗
-    ██║     ██║██║   ██║██║   ██║██║   ██║██╔══██║   ██║   ╚════██║
-    ███████╗██║╚██████╔╝╚██████╔╝╚██████╔╝██║  ██║   ██║   ███████║
-    ╚══════╝╚═╝ ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝®
+   LIGGGHTS is part of the CFDEMproject
+   www.liggghts.com | www.cfdem.com
 
-    DEM simulation engine, released by
-    DCS Computing Gmbh, Linz, Austria
-    http://www.dcs-computing.com, office@dcs-computing.com
+   Christoph Kloss, christoph.kloss@cfdem.com
+   Copyright 2009-2012 JKU Linz
+   Copyright 2012-     DCS Computing GmbH, Linz
 
-    LIGGGHTS® is part of CFDEM®project:
-    http://www.liggghts.com | http://www.cfdem.com
+   LIGGGHTS is based on LAMMPS
+   LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
+   http://lammps.sandia.gov, Sandia National Laboratories
+   Steve Plimpton, sjplimp@sandia.gov
 
-    Core developer and main author:
-    Christoph Kloss, christoph.kloss@dcs-computing.com
+   This software is distributed under the GNU General Public License.
 
-    LIGGGHTS® is open-source, distributed under the terms of the GNU Public
-    License, version 2 or later. It is distributed in the hope that it will
-    be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You should have
-    received a copy of the GNU General Public License along with LIGGGHTS®.
-    If not, see http://www.gnu.org/licenses . See also top-level README
-    and LICENSE files.
+   See the README file in the top-level directory.
+------------------------------------------------------------------------- */
 
-    LIGGGHTS® and CFDEM® are registered trade marks of DCS Computing GmbH,
-    the producer of the LIGGGHTS® software and the CFDEM®coupling software
-    See http://www.cfdem.com/terms-trademark-policy for details.
-
--------------------------------------------------------------------------
-    Contributing author and copyright for this file:
-    Philippe Seil (JKU Linz)
-
-    Copyright 2004-     JKU Linz
+/* ----------------------------------------------------------------------
+   Contributing authors:
+   Philippe Seil (JKU Linz)
 ------------------------------------------------------------------------- */
 
 #include "fix_lb_coupling_onetoone.h"
@@ -44,6 +31,7 @@
 #include "error.h"
 #include "atom.h"
 #include "comm.h"
+#include "timer.h"
 
 #include "fix_property_atom.h"
 
@@ -52,8 +40,22 @@
 
 namespace LAMMPS_NS {
   FixLbCouplingOnetoone::FixLbCouplingOnetoone(LAMMPS *lmp, int narg, char **arg)
-    : Fix(lmp,narg,arg), fix_dragforce_(0), fix_hdtorque_(0)
+    : Fix(lmp,narg,arg), fix_dragforce_(0), fix_hdtorque_(0), use_torque_(1)
   {
+
+    if(narg < 5) return;
+
+    if(strcmp(arg[3],"use_torque") == 0){
+      if(strcmp(arg[4],"yes") == 0){
+	use_torque_ = 1;
+      } else if(strcmp(arg[4],"no") == 0){
+	use_torque_ = 0;
+	error->warning(FLERR,"Torque from LB simulation not used");
+      } else{
+	// complain
+	error->all(FLERR,"Illegal fix lbcoupling command: use_torque must be \"yes\" or \"no\"");
+      }
+    }
   }
 
   FixLbCouplingOnetoone::~FixLbCouplingOnetoone()
@@ -65,6 +67,7 @@ namespace LAMMPS_NS {
   {
     int mask = 0;
     mask |= FixConst::POST_FORCE;
+    mask |= FixConst::POST_RUN;
     return mask;
   }
 
@@ -73,6 +76,7 @@ namespace LAMMPS_NS {
     // make sure there is only one fix of this style
     if(modify->n_fixes_style(style) != 1)
       error->fix_error(FLERR,this,"More than one fix of this style is not allowed");
+
 
   }
 
@@ -88,7 +92,7 @@ namespace LAMMPS_NS {
           "dragforce",     // property name
           "vector", // 1 vector per particle
           "yes",    // restart
-          "no",     // communicate ghost
+          "yes",     // communicate ghost
           "yes",    // communicate rev
           "0.","0.","0." // default values
         };
@@ -105,7 +109,7 @@ namespace LAMMPS_NS {
           "hdtorque",      // property name
           "vector", // 1 vector per particle
           "yes",    // restart
-          "no",     // communicate ghost
+          "yes",     // communicate ghost
           "yes",    // communicate rev
           "0.","0.","0."
         };
@@ -146,12 +150,27 @@ namespace LAMMPS_NS {
     double **t = atom->torque;
 
     for(int i=0;i<atom->nlocal;i++){
-      for(int j=0;j<3;j++){
-        f[i][j] += f_ext[i][j];
-        // t[i][j] += t_ext[i][j];
-        t[i][j] += t_ext[i][j];
+      f[i][0] += f_ext[i][0];
+      f[i][1] += f_ext[i][1];
+      f[i][2] += f_ext[i][2];
+      if(use_torque_){
+	t[i][0] += t_ext[i][0];
+	t[i][1] += t_ext[i][1];
+	t[i][2] += t_ext[i][2];
       }
     }
+
+  }
+
+  // LBDEM coupling relies on correct values for velocities in ghost atoms, thus 
+
+  void FixLbCouplingOnetoone::post_run()
+  {
+    // need one very last forward_comm to make sure 
+    // that velocities on owned and ghost particles match
+    timer->stamp();
+    comm->forward_comm();
+    timer->stamp(TIME_COMM);
 
   }
 
@@ -168,5 +187,6 @@ namespace LAMMPS_NS {
     fix_dragforce_->do_reverse_comm();
     fix_hdtorque_->do_reverse_comm();
   }
+
 
 }; /* LAMMPS_NS */
