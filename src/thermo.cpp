@@ -466,6 +466,7 @@ bigint Thermo::lost_check()
 
 void Thermo::modify_params(int narg, char **arg)
 {
+  /*
   if (narg == 0) error->all(FLERR,"Illegal thermo_modify command");
 
   modified = 1;
@@ -538,6 +539,7 @@ void Thermo::modify_params(int narg, char **arg)
 
     } else error->all(FLERR,"Illegal thermo_modify command");
   }
+  */
 }
 
 /* ----------------------------------------------------------------------

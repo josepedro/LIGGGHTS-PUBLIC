@@ -361,7 +361,7 @@ void Respa::init()
 
 void Respa::setup()
 {
-  if (comm->me == 0 && screen) fprintf(screen,"Setting up run ...\n");
+  // if (comm->me == 0 && screen) fprintf(screen,"Setting up run ...\n");
 
   update->setupflag = 1;
 

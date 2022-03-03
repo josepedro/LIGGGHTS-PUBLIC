@@ -113,7 +113,7 @@ Output::Output(LAMMPS *lmp) :
   // create default Thermo class
   newarg = new char*[1];
   newarg[0] = (char *) "one";
-  thermo = new Thermo(lmp,1,newarg);
+  // thermo = new Thermo(lmp,1,newarg);
   delete [] newarg;
 
   thermo_every = 0;
@@ -162,7 +162,7 @@ Output::~Output()
 
 void Output::init()
 {
-  thermo->init();
+  // thermo->init();
   if (var_thermo) {
     ivar_thermo = input->variable->find(var_thermo);
     if (ivar_thermo < 0)
@@ -298,8 +298,8 @@ void Output::setup(int memflag)
 
   modify->clearstep_compute();
 
-  thermo->header();
-  thermo->compute(0);
+  // thermo->header();
+  // thermo->compute(0);
   last_thermo = ntimestep;
 
   if (var_thermo) {
@@ -312,12 +312,12 @@ void Output::setup(int memflag)
     next_thermo = MIN(next_thermo,update->laststep);
   } else next_thermo = update->laststep;
 
-  modify->addstep_compute(next_thermo);
+  //modify->addstep_compute(next_thermo);
 
   // next = next timestep any output will be done
 
   next = MIN(next_dump_any,next_restart);
-  next = MIN(next,next_thermo);
+  //next = MIN(next,next_thermo);
 }
 
 /* ----------------------------------------------------------------------
@@ -436,7 +436,7 @@ void Output::write(bigint ntimestep)
     // check all computes and those with update_on_run_end activated will be updated
     if (ntimestep == update->laststep)
         modify->update_computes_on_run_end();
-    if (last_thermo != ntimestep) thermo->compute(1);
+    if (last_thermo != ntimestep) // thermo->compute(1);
     last_thermo = ntimestep;
     if (var_thermo) {
       next_thermo = static_cast<bigint>
@@ -578,7 +578,7 @@ void Output::reset_timestep(bigint ntimestep)
       error->all(FLERR,"Thermo every variable returned a bad timestep");
     update->ntimestep++;
     next_thermo = MIN(next_thermo,update->laststep);
-    modify->addstep_compute(next_thermo);
+    //modify->addstep_compute(next_thermo);
   } else if (thermo_every) {
     next_thermo = (ntimestep/thermo_every)*thermo_every;
     if (next_thermo < ntimestep) next_thermo += thermo_every;
@@ -586,7 +586,7 @@ void Output::reset_timestep(bigint ntimestep)
   } else next_thermo = update->laststep;
 
   next = MIN(next_dump_any,next_restart);
-  next = MIN(next,next_thermo);
+  //next = MIN(next,next_thermo);
 }
 
 /* ----------------------------------------------------------------------
@@ -712,6 +712,7 @@ void Output::set_thermo(int narg, char **arg)
 
 void Output::create_thermo(int narg, char **arg)
 {
+  /*
   if (narg < 1) error->all(FLERR,"Illegal thermo_style command");
 
   // don't allow this so that dipole style can safely allocate inertia vector
@@ -729,7 +730,8 @@ void Output::create_thermo(int narg, char **arg)
 
   delete thermo;
   thermo = NULL;
-  thermo = new Thermo(lmp,narg,arg);
+  // thermo = new Thermo(lmp,narg,arg);
+  */
 }
 
 /* ----------------------------------------------------------------------
@@ -826,12 +828,14 @@ void Output::memory_usage()
 
   double mbytes = bytes/1024.0/1024.0;
 
+  /*
   if (comm->me == 0) {
     if (screen)
       fprintf(screen,"Memory usage per processor = %g Mbytes\n",mbytes);
     if (logfile)
       fprintf(logfile,"Memory usage per processor = %g Mbytes\n",mbytes);
   }
+  */
 }
 
 /* ----------------------------------------------------------------------

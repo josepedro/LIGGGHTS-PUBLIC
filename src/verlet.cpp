@@ -136,8 +136,10 @@ void Verlet::setup()
   time_t curtime;
   time(&curtime);
 
+  /*
   if (comm->me == 0 && screen) fprintf(screen,"Setting up run at %s\n",ctime(&curtime));
   if (comm->me == 0 && logfile) fprintf(logfile,"Setting up run at %s\n",ctime(&curtime));
+  */
 
   update->setupflag = 1;
 

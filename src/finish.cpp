@@ -142,6 +142,7 @@ void Finish::end(int flag)
 #if defined(_OPENMP)
     if (me == 0) {
       int ntasks = nprocs * comm->nthreads;
+      /*
       if (screen) fprintf(screen,
                           "Loop time of %g on %d procs (%d MPI x %d OpenMP) "
                           "for %d steps with " BIGINT_FORMAT " atoms\n",
@@ -152,11 +153,13 @@ void Finish::end(int flag)
                           "for %d steps with " BIGINT_FORMAT " atoms\n",
                           time_loop,ntasks,nprocs,comm->nthreads,
                           update->nsteps,atom->natoms);
+                          */
     }
 #else
     if (me == 0) {
       time_t curtime;
       ::time(&curtime);
+      /*
       if (screen) fprintf(screen,
                           "Loop time of %g on %d procs for %d steps with "
                           BIGINT_FORMAT " atoms, finish time %s\n",
@@ -165,6 +168,7 @@ void Finish::end(int flag)
                            "Loop time of %g on %d procs for %d steps with "
                            BIGINT_FORMAT " atoms, finish time %s\n",
                            time_loop,nprocs,update->nsteps,atom->natoms,ctime(&curtime));
+                           */
     }
 #endif
 
@@ -412,6 +416,7 @@ void Finish::end(int flag)
     time = timer->array[TIME_PAIR];
     MPI_Allreduce(&time,&tmp,1,MPI_DOUBLE,MPI_SUM,world);
     time = tmp/nprocs;
+    /*
     if (me == 0) {
       if (screen)
         fprintf(screen,"Pair  time (%%) = %g (%g)\n",
@@ -419,7 +424,7 @@ void Finish::end(int flag)
       if (logfile)
         fprintf(logfile,"Pair  time (%%) = %g (%g)\n",
                 time,time/time_loop*100.0);
-    }
+    }*/
 
     if (atom->molecular) {
       time = timer->array[TIME_BOND];
@@ -452,6 +457,7 @@ void Finish::end(int flag)
     time = timer->array[TIME_NEIGHBOR];
     MPI_Allreduce(&time,&tmp,1,MPI_DOUBLE,MPI_SUM,world);
     time = tmp/nprocs;
+    /*
     if (me == 0) {
       if (screen)
         fprintf(screen,"Neigh time (%%) = %g (%g)\n",
@@ -460,10 +466,11 @@ void Finish::end(int flag)
         fprintf(logfile,"Neigh time (%%) = %g (%g)\n",
                 time,time/time_loop*100.0);
     }
-
+    */
     time = timer->array[TIME_COMM];
     MPI_Allreduce(&time,&tmp,1,MPI_DOUBLE,MPI_SUM,world);
     time = tmp/nprocs;
+    /*
     if (me == 0) {
       if (screen)
         fprintf(screen,"Comm  time (%%) = %g (%g)\n",
@@ -471,11 +478,12 @@ void Finish::end(int flag)
       if (logfile)
         fprintf(logfile,"Comm  time (%%) = %g (%g)\n",
                 time,time/time_loop*100.0);
-    }
+    }*/
 
     time = timer->array[TIME_OUTPUT];
     MPI_Allreduce(&time,&tmp,1,MPI_DOUBLE,MPI_SUM,world);
     time = tmp/nprocs;
+    /*
     if (me == 0) {
       if (screen)
         fprintf(screen,"Outpt time (%%) = %g (%g)\n",
@@ -483,7 +491,7 @@ void Finish::end(int flag)
       if (logfile)
         fprintf(logfile,"Outpt time (%%) = %g (%g)\n",
                 time,time/time_loop*100.0);
-    }
+    }*/
 
     if(modify->timing) {
       time = timer->array[TIME_MODIFY];
@@ -522,6 +530,7 @@ void Finish::end(int flag)
     time = time_other;
     MPI_Allreduce(&time,&tmp,1,MPI_DOUBLE,MPI_SUM,world);
     time = tmp/nprocs;
+    /*
     if (me == 0) {
       if (screen)
         fprintf(screen,"Other time (%%) = %g (%g)\n",
@@ -529,7 +538,7 @@ void Finish::end(int flag)
       if (logfile)
         fprintf(logfile,"Other time (%%) = %g (%g)\n",
                 time,time/time_loop*100.0);
-    }
+    }*/
 
     if(modify->timing) {
       double * fix_times = NULL;
@@ -641,6 +650,7 @@ void Finish::end(int flag)
 
     tmp = atom->nlocal;
     stats(1,&tmp,&ave,&max,&min,10,histo);
+    /*
     if (me == 0) {
       if (screen) {
         fprintf(screen,"Nlocal:    %g ave %g max %g min\n",ave,max,min);
@@ -654,10 +664,11 @@ void Finish::end(int flag)
         for (i = 0; i < 10; i++) fprintf(logfile," %d",histo[i]);
         fprintf(logfile,"\n");
       }
-    }
+    }*/
 
     tmp = atom->nghost;
     stats(1,&tmp,&ave,&max,&min,10,histo);
+    /*
     if (me == 0) {
       if (screen) {
         fprintf(screen,"Nghost:    %g ave %g max %g min\n",ave,max,min);
@@ -671,7 +682,7 @@ void Finish::end(int flag)
         for (i = 0; i < 10; i++) fprintf(logfile," %d",histo[i]);
         fprintf(logfile,"\n");
       }
-    }
+    }*/
 
     // find a non-skip neighbor list containing half the pairwise interactions
     // count neighbors in that list for stats purposes
@@ -695,6 +706,7 @@ void Finish::end(int flag)
 
     tmp = nneigh;
     stats(1,&tmp,&ave,&max,&min,10,histo);
+    /*
     if (me == 0) {
       if (screen) {
         fprintf(screen,"Neighs:    %g ave %g max %g min\n",ave,max,min);
@@ -708,7 +720,7 @@ void Finish::end(int flag)
         for (i = 0; i < 10; i++) fprintf(logfile," %d",histo[i]);
         fprintf(logfile,"\n");
       }
-    }
+    }*/
 
     // find a non-skip neighbor list containing full pairwise interactions
     // count neighbors in that list for stats purposes
@@ -765,7 +777,7 @@ void Finish::end(int flag)
       tmp = nspec;
       MPI_Allreduce(&tmp,&nspec_all,1,MPI_DOUBLE,MPI_SUM,world);
     }
-
+    /*
     if (me == 0) {
       if (screen) {
         if (nall < 2.0e9)
@@ -798,6 +810,7 @@ void Finish::end(int flag)
                 neighbor->ndanger);
       }
     }
+    */
   }
 
   if (logfile) fflush(logfile);

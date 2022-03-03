@@ -219,7 +219,7 @@ void Min::init()
 
 void Min::setup()
 {
-  if (comm->me == 0 && screen) fprintf(screen,"Setting up minimization ...\n");
+  // if (comm->me == 0 && screen) fprintf(screen,"Setting up minimization ...\n");
 
   update->setupflag = 1;
 

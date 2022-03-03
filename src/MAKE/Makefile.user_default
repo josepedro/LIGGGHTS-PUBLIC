@@ -19,7 +19,7 @@ USE_CATALYST = "OFF"
 USE_VTK = "ON"
 # If you want to use the vtk output feature and did not install vtk yourself
 # then set the following to "ON" and uncomment it to allow for an automatic download and compilation
-#AUTOINSTALL_VTK = "OFF"
+AUTOINSTALL_VTK = "ON"
 # SUPERQUADRICS: "ON" or "OFF"
 # Description: Enable superquadric particles (Note: requires boost)
 USE_SUPERQUADRICS = "ON"
